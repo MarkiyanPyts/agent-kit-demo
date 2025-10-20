@@ -1,62 +1,69 @@
-from agents import Agent, InputGuardrail, GuardrailFunctionOutput, Runner
-from agents.exceptions import InputGuardrailTripwireTriggered
-from pydantic import BaseModel
 import asyncio
+from agents import Agent, function_tool, Runner
+from typing import List, Optional, Annotated
+from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
-class EquipmentMeintenanceAnalizerOutput(BaseModel):
-    is_homework: bool
-    reasoning: str
+load_dotenv()
 
-equiplentMaintainanceAnalizerAgent = Agent(
-    name="Guardrail check",
-    instructions="Check if the user is asking about homework.",
-    output_type=EquipmentMeintenanceAnalizerOutput,
-)
+import csv
+import os
 
-math_tutor_agent = Agent(
-    name="Math Tutor",
-    handoff_description="Specialist agent for math questions",
-    instructions="You provide help with math problems. Explain your reasoning at each step and include examples",
-)
+csv_content = []
 
-history_tutor_agent = Agent(
-    name="History Tutor",
-    handoff_description="Specialist agent for historical questions",
-    instructions="You provide assistance with historical queries. Explain important events and context clearly.",
-)
+# Get directory where this Python file is located
+base_dir = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(base_dir, "../data/Equipment_Maintenance_Logs_&_Predictive_Failure_Signals.csv")
+
+with open(file_path, newline='') as csvfile:
+    reader = csv.reader(csvfile)
+    for row in reader:
+        csv_content.append(row)
+
+@function_tool
+def getEquipmentMeintenanceLogs():
+    """Provides Equipment Maintenance Logs"""
+    print('Getting maintainance logs:')
+    return csv_content
 
 
-async def homework_guardrail(ctx, agent, input_data):
-    result = await Runner.run(equiplentMaintainanceAnalizerAgent, input_data, context=ctx.context)
-    final_output = result.final_output_as(EquipmentMeintenanceAnalizerOutput)
-    return GuardrailFunctionOutput(
-        output_info=final_output,
-        tripwire_triggered=not final_output.is_homework,
-    )
+class MaintenanceLogItem(BaseModel):
+    log_id: str = Field(description="Log_ID")
+    project_id: str = Field(description="Project_ID")
+    equipment_type: str = Field(description="Equipment_Type")
+    equipment_id: str = Field(description="Equipment_ID")
+    installation_date: str = Field(description="Installation_Date")
+    last_maintenance_date: str = Field(description="Last_Maintenance_Date")
+    next_scheduled_maintenance_date: str = Field(description="Next_Scheduled_Maintenance_Date")
+    runtime_hours: Annotated[float, Field(ge=0, description="Runtime_Hours")]  # non-negative
+    failure_risk_score: Annotated[float, Field(ge=0, le=1, description="Failure_Risk_Score")]  # between 0 and 1
+    sensors_anomaly_count: Annotated[int, Field(ge=0, description="Sensors_Anomaly_Count")]  # non-negative integer
+    maintenance_type: str = Field(description="Maintenance_Type")
+    outcome: str = Field(description="Outcome")
+    notes: Optional[str] = Field(None, description="Notes")
 
-triage_agent = Agent(
-    name="Triage Agent",
-    instructions="You determine which agent to use based on the user's homework question",
-    handoffs=[history_tutor_agent, math_tutor_agent],
-    input_guardrails=[
-        InputGuardrail(guardrail_function=homework_guardrail),
-    ],
+class EquipmentMaintenanceAnalyzerOutputSchema(BaseModel):
+    logs: List[MaintenanceLogItem] = Field(description="Logs")
+
+
+# Create orchestrator with conditional tools
+equipment_maintenance_analizer_agent = Agent(
+    name="equipment_maintenance_analizer_agent",
+    instructions=(
+        """
+            You are an advanced AI Maintenance Analyst specializing in renewable and conventional energy infrastructure. You analyze structured maintenance logs for various equipment used in global energy projects, including wind, solar, gas, and oil systems.
+
+            Each record in your dataset contains information about equipment type, runtime hours, failure risk scores, maintenance schedules, sensor anomalies, and outcomes.
+
+            Your objectives are to return logs relevant to customer request
+        """
+    ),
+    tools=[getEquipmentMeintenanceLogs],
+    output_type=EquipmentMaintenanceAnalyzerOutputSchema
 )
 
 async def main():
-    # Example 1: History question
-    try:
-        result = await Runner.run(triage_agent, "who was the first president of the united states?")
-        print(result.final_output)
-    except InputGuardrailTripwireTriggered as e:
-        print("Guardrail blocked this input:", e)
+    result = await Runner.run(equipment_maintenance_analizer_agent, "Show me top 3 logs with biggest risk score?")
+    print(result.final_output)
 
-    # Example 2: General/philosophical question
-    try:
-        result = await Runner.run(triage_agent, "What is the meaning of life?")
-        print(result.final_output)
-    except InputGuardrailTripwireTriggered as e:
-        print("Guardrail blocked this input:", e)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
