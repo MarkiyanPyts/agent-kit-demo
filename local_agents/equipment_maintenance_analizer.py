@@ -49,6 +49,7 @@ class EquipmentMaintenanceAnalyzerOutputSchema(BaseModel):
 # Create orchestrator with conditional tools
 equipment_maintenance_analizer_agent = Agent(
     name="equipment_maintenance_analizer_agent",
+    model="gpt-5-mini",
     instructions=(
         """
             You are an advanced AI Maintenance Analyst specializing in renewable and conventional energy infrastructure. You analyze structured maintenance logs for various equipment used in global energy projects, including wind, solar, gas, and oil systems.
