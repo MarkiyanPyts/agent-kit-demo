@@ -1,7 +1,11 @@
 from agents import Agent, Runner
 from dotenv import load_dotenv
+from enum import IntEnum
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
 
 load_dotenv()
+api = FastAPI()
 
 agent = Agent(name="Assistant", instructions="You are a helpful assistant")
 
