@@ -56,14 +56,12 @@ async def message(message: MessageToAgent):
                         it = event.item
                         # Tool call started
                         if it.type == "tool_call_item":
-                            breakpoint()
                             tool_name = getattr(it, "name", "unknown_tool")
                             print(f"-- Agent {current_agent_name} called tool: {tool_name}")
                             yield f"event: tool_call\ndata: {json.dumps({'agent_name': current_agent_name, 'tool_name': tool_name, 'status': 'called'})}\n\n"
 
                         # Tool produced output
                         elif it.type == "tool_call_output_item":
-                            breakpoint()
                             tool_name = getattr(it, "name", "unknown_tool")
                             print(f"-- Agent {current_agent_name} received output from {tool_name}: {it.output}")
                             yield f"event: tool_output\ndata: {json.dumps({'agent_name': current_agent_name, 'tool_name': tool_name, 'output': it.output})}\n\n"
