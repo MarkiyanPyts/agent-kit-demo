@@ -1,8 +1,8 @@
 from agents import Agent, Runner, enable_verbose_stdout_logging, handoff
-from agent_builder_energy_output_analizer import energy_project_analiser
-from agent_builder_energy_output_analizer import WorkflowInput
-from equipment_maintenance_analizer import equipment_maintenance_analizer_agent
-from content_manager_agent import content_manager_agent
+from local_agents.agent_builder_energy_output_analizer import energy_project_analiser
+from local_agents.agent_builder_energy_output_analizer import WorkflowInput
+from local_agents.equipment_maintenance_analizer import equipment_maintenance_analizer_agent
+from local_agents.content_manager_agent import content_manager_agent
 import asyncio
 from openai.types.responses import ResponseTextDeltaEvent
 
@@ -70,13 +70,11 @@ energy_company_data_manager_agent = Agent(
     ],
     model="gpt-5")
 
-message = "Show me top 3 logs with biggest risk score?"
+# async def main():
+#     enable_verbose_stdout_logging()
+#     result = Runner.run_streamed(energy_company_data_manager_agent, message)
+#     async for event in result.stream_events():
+#         if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
+#             print(event.data.delta, end="", flush=True)
 
-async def main():
-    enable_verbose_stdout_logging()
-    result = Runner.run_streamed(energy_company_data_manager_agent, message)
-    async for event in result.stream_events():
-        if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
-            print(event.data.delta, end="", flush=True)
-
-asyncio.run(main())
+# asyncio.run(main())
