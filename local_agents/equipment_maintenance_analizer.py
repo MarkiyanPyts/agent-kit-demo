@@ -44,6 +44,7 @@ class MaintenanceLogItem(BaseModel):
 
 class EquipmentMaintenanceAnalyzerOutputSchema(BaseModel):
     logs: List[MaintenanceLogItem] = Field(description="Logs")
+    
 
 
 # Create orchestrator with conditional tools
@@ -56,15 +57,15 @@ equipment_maintenance_analizer_agent = Agent(
 
             Each record in your dataset contains information about equipment type, runtime hours, failure risk scores, maintenance schedules, sensor anomalies, and outcomes.
 
-            Your objectives are to return logs relevant to customer request
+            Your objectives are to return logs relevant to customer request following strict output schema
         """
     ),
     tools=[getEquipmentMeintenanceLogs],
     output_type=EquipmentMaintenanceAnalyzerOutputSchema
 )
 
-async def main():
-    result = await Runner.run(equipment_maintenance_analizer_agent, "Show me top 3 logs with biggest risk score?")
-    print(result.final_output)
+# async def main():
+#     result = await Runner.run(equipment_maintenance_analizer_agent, "Show me top 3 logs with biggest risk score?")
+#     print(result.final_output)
 
-asyncio.run(main())
+# asyncio.run(main())

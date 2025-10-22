@@ -1,0 +1,39 @@
+import asyncio
+from agents import Agent, Runner
+from dotenv import load_dotenv
+from pydantic import BaseModel, Field
+
+load_dotenv()
+
+class MarkdownGeneratorInputParams(BaseModel):
+    input_query: str = Field(description="Input text query")
+
+
+class MarkdownGeneratorToolOutputSchema(BaseModel):
+    result: str = Field(description='Markdown table output, or explicit text telling that you can not generate table based on input content')
+    parameters: MarkdownGeneratorInputParams = Field(description='Input request params that markdown_table_generator_agent got')
+
+markdown_table_generator_agent = Agent(
+    name="markdown_table_generator_agent",
+    model="gpt-5-mini",
+    instructions=(
+        """
+            You are expert at creating markdown tables from data provided to you, here is example of table format expected
+
+            | User ID | Name | Email | Created At |
+            |---------|------|-------|------------|
+            | 1 | John Doe | john@example.com | 2024-01-15 |
+            | 2 | Jane Smith | jane@example.com | 2024-01-20 |
+            | 3 | Bob Wilson | bob@example.com | 2024-02-01 |
+            | 4 | Alice Brown | alice@example.com | 2024-02-10 |
+            | 5 | Charlie Davis | charlie@example.com | 2024-02-15 |
+        """
+    ),
+    output_type=MarkdownGeneratorToolOutputSchema
+)
+
+# async def main():
+#     result = await Runner.run(markdown_table_generator_agent, "Create a small markdown mable about cats")
+#     print(result.final_output)
+
+# asyncio.run(main())

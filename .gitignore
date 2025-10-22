@@ -1,2 +1,3 @@
 .venv
 .env
+local_agents/__pycache__
