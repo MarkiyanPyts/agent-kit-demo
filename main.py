@@ -37,14 +37,6 @@ async def message(message: MessageToAgent):
                     if (hasattr(event, "item")): 
                         current_agent_name = getattr(event.item.agent, "name", "unknown_agent")
 
-                    if isinstance(event, RunItemStreamEvent) and event.item.type == "tool_call":
-                        breakpoint()
-                        tool_call_data = event.item.tool_calls[0] # Assuming one tool call per item for simplicity
-                        tool_name = tool_call_data.function.name
-                        tool_input_args = tool_call_data.function.arguments
-
-                        print(f"Tool '{tool_name}' called with inputs: {tool_input_args}")
-
 
                     # 1️⃣ Stream raw token deltas (console + SSE)
                     if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
@@ -66,17 +58,27 @@ async def message(message: MessageToAgent):
                         tool_item_types.add(it.type)
                         print(tool_item_types)
                         if it.type == "tool_call_item":
-                            breakpoint()
-                            tool_call_arguments=it.raw_item.arguments
-                            tool_name = getattr(it, "name", "unknown_tool")
-                            print(f"-- Agent {current_agent_name} called tool: {tool_name}")
-                            yield f"event: tool_call\ndata: {json.dumps({'agent_name': current_agent_name, 'tool_name': tool_name, 'status': 'called'})}\n\n"
+                            
+                            raw_args = it.raw_item.arguments
+                            tool_call_arguments = ''
+                            # Normalize arguments so they’re JSON-safe
+                            try:
+                                tool_call_arguments = json.loads(raw_args) if isinstance(raw_args, str) else raw_args
+                            except Exception:
+                                tool_call_arguments = str(raw_args)
+                            # breakpoint()
+                            call_id=getattr(it.raw_item, "call_id", "")
+                            tool_name = getattr(it.raw_item, "name", "unknown_tool")
+                            print(f"-- Agent {current_agent_name} called tool: {tool_name} with arguments: {tool_call_arguments} call_id: {call_id}")
+                            yield f"event: tool_call\ndata: {json.dumps({'call_id': call_id, 'agent_name': current_agent_name, 'tool_name': tool_name, 'status': 'called', 'arguments': tool_call_arguments})}\n\n"
+
 
                         # Tool produced output
                         elif it.type == "tool_call_output_item":
-                            tool_name = getattr(it, "name", "unknown_tool")
-                            print(f"-- Agent {current_agent_name} received output from {tool_name}: {it.output}")
-                            yield f"event: tool_output\ndata: {json.dumps({'agent_name': current_agent_name, 'tool_name': tool_name, 'output': it.output})}\n\n"
+                            call_id=getattr(it.raw_item, "call_id", "")
+                            tool_name = getattr(it.raw_item, "name", "unknown_tool")
+                            print(f"-- Agent {current_agent_name} received output from {tool_name}: {it.output}; call_id: {call_id}")
+                            yield f"event: tool_output\ndata: {json.dumps({'call_id': call_id, 'agent_name': current_agent_name, 'tool_name': tool_name, 'output': it.output})}\n\n"
 
                         # Regular message output
                         elif it.type == "message_output_item":
