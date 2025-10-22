@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 from local_agents.orchestrator_agent import energy_company_data_manager_agent
-# from openai.types.responses import ResponseTextDeltaEvent
+from openai.types.responses import ResponseTextDeltaEvent
 from fastapi.responses import StreamingResponse
 import asyncio
 import json
@@ -39,7 +39,7 @@ async def message(message: MessageToAgent):
 
 
                     # 1️⃣ Stream raw token deltas (console + SSE)
-                    if (event.type == "raw_response_event" or event.type == "response.function_call_arguments.delta"):
+                    if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
                         if (hasattr(event, "data") and hasattr(event.data, "delta")):
                             print(event.data.delta, end="", flush=True)
                             yield f"event: delta\ndata: {json.dumps({'agent_name': current_agent_name, 'delta': event.data.delta})}\n\n"
