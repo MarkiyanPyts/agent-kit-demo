@@ -28,7 +28,7 @@ energy_output_site_analizer_tool = energy_project_analiser.as_tool(tool_name="Si
 equipment_maintenance_analizer_agent_tool = equipment_maintenance_analizer_agent.as_tool(tool_name="Equipment_Maintenance_Logs_Analiser", tool_description="""
     Analizes equipment maintainance logs, returns only records relevant to user request
     
-    here is example of a logs forman available in data set
+    here is example of a logs format available in data set
     {
     "Log_ID": "MAINT001",
     "Project_ID": "OUT003",
@@ -46,8 +46,6 @@ equipment_maintenance_analizer_agent_tool = equipment_maintenance_analizer_agent
     }
 
 """)
-
-
 
 
 energy_company_data_manager_instructions = """
