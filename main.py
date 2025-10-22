@@ -1,12 +1,12 @@
 from agents import ItemHelpers, Runner
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+from fastapi import FastAPI
+from pydantic import BaseModel
 from local_agents.orchestrator_agent import energy_company_data_manager_agent
+from openai.types.responses import ResponseTextDeltaEvent
 from fastapi.responses import StreamingResponse
 import asyncio
 import json
-from typing import Any, Optional
 
 load_dotenv()
 
@@ -22,12 +22,13 @@ async def message(message: MessageToAgent):
         result = Runner.run_streamed(energy_company_data_manager_agent, message.text)
 
         try:
-            # Optional: send a "hello" event so clients know the stream is alive
             yield "event: hello\ndata: {}\n\n"
 
             async for event in result.stream_events():
-                # Ignore raw deltas
-                if event.type == "raw_response_event":
+
+                # Handle partial text deltas from the model
+                if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
+                    print(event.data.delta, end="", flush=True)
                     continue
 
                 elif event.type == "agent_updated_stream_event":
@@ -51,22 +52,18 @@ async def message(message: MessageToAgent):
                         yield f"event: message\ndata: {json.dumps({'text': text})}\n\n"
 
                     else:
-                        # Unknown item type; you can choose to ignore or log
                         yield f"event: debug\ndata: {json.dumps({'item_type': it.type})}\n\n"
 
-                # ignore other event types by default
-
         finally:
-            # If the stream object supports async close, close it
+            # Properly close stream if possible
             aclose = getattr(result, "aclose", None)
             if aclose and asyncio.iscoroutinefunction(aclose):
                 await aclose()
 
-            # Signal completion to the client
             yield "event: done\ndata: {}\n\n"
 
     return StreamingResponse(
-        event_stream(),  # <-- now an async generator (async iterable), not a bare coroutine
+        event_stream(),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
