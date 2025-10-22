@@ -16,7 +16,7 @@ If input data contains data that can be represented as a table use markdown_tabl
 """
 
 content_manager_agent = Agent(
-    name="Energy_Content_Manager",
+    name="Energy_Company_Content_Manager",
     instructions=content_manager_instructions,
     tools=[markdown_table_generator_agent_tool],
     model="gpt-5-mini",
