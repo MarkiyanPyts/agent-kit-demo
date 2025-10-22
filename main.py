@@ -1,4 +1,4 @@
-from agents import ItemHelpers, Runner, trace
+from agents import ItemHelpers, Runner, trace, RunItemStreamEvent
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -15,7 +15,7 @@ app = FastAPI()
 class MessageToAgent(BaseModel):
     text: str
 
-
+tool_item_types=set()
 @app.post("/message")
 async def message(message: MessageToAgent):
     async def event_stream():
@@ -37,6 +37,14 @@ async def message(message: MessageToAgent):
                     if (hasattr(event, "item")): 
                         current_agent_name = getattr(event.item.agent, "name", "unknown_agent")
 
+                    if isinstance(event, RunItemStreamEvent) and event.item.type == "tool_call":
+                        breakpoint()
+                        tool_call_data = event.item.tool_calls[0] # Assuming one tool call per item for simplicity
+                        tool_name = tool_call_data.function.name
+                        tool_input_args = tool_call_data.function.arguments
+
+                        print(f"Tool '{tool_name}' called with inputs: {tool_input_args}")
+
 
                     # 1️⃣ Stream raw token deltas (console + SSE)
                     if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
@@ -55,8 +63,11 @@ async def message(message: MessageToAgent):
                     elif event.type == "run_item_stream_event":
                         it = event.item
                         # Tool call started
+                        tool_item_types.add(it.type)
+                        print(tool_item_types)
                         if it.type == "tool_call_item":
                             breakpoint()
+                            tool_call_arguments=it.raw_item.arguments
                             tool_name = getattr(it, "name", "unknown_tool")
                             print(f"-- Agent {current_agent_name} called tool: {tool_name}")
                             yield f"event: tool_call\ndata: {json.dumps({'agent_name': current_agent_name, 'tool_name': tool_name, 'status': 'called'})}\n\n"
