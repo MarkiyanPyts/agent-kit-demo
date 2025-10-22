@@ -1,3 +1,4 @@
 .venv
 .env
 local_agents/__pycache__
+__pycache__/main.cpython-311.pyc

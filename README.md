@@ -8,4 +8,4 @@ https://ui.shadcn.com/charts/bar#charts - make a tool that will convert structur
 `uv add fastapi --extra standard`
 
 # Run dev server
-`uv run fastapi dev main.py`
+`uv run fastapi dev`

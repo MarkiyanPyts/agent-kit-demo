@@ -3,7 +3,6 @@ from local_agents.agent_builder_energy_output_analizer import energy_project_ana
 from local_agents.agent_builder_energy_output_analizer import WorkflowInput
 from local_agents.equipment_maintenance_analizer import equipment_maintenance_analizer_agent
 from local_agents.content_manager_agent import content_manager_agent
-import asyncio
 from openai.types.responses import ResponseTextDeltaEvent
 
 

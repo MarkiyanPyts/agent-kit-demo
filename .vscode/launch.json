@@ -1,0 +1,19 @@
+    {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Debug UV FastAPI",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/.venv/bin/uvicorn", // Adjust path to uv executable if needed
+                "args": [
+                   "--app-dir", ".",
+                    "main:app",               // <-- now just main:app
+                    "--reload"
+                ],
+                "console": "integratedTerminal",
+                "justMyCode": false,
+                // "preLaunchTask": "uv-sync" // Optional: if you have a pre-launch task to sync dependencies
+            }
+        ]
+    }
