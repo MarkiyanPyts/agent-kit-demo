@@ -91,7 +91,7 @@ async def message(message: "MessageToAgent"):
         finally:
             # close the underlying stream if supported
             aclose = getattr(result, "aclose", None)
-            breakpoint()
+            # breakpoint()
             if asyncio.iscoroutinefunction(aclose):
                 await result.aclose()
 

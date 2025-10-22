@@ -2,6 +2,8 @@ import asyncio
 from agents import Agent, Runner
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
+from agents import Agent, ModelSettings
+from openai.types.shared.reasoning import Reasoning
 
 load_dotenv()
 
@@ -29,7 +31,14 @@ markdown_table_generator_agent = Agent(
             | 5 | Charlie Davis | charlie@example.com | 2024-02-15 |
         """
     ),
-    output_type=MarkdownGeneratorToolOutputSchema
+    output_type=MarkdownGeneratorToolOutputSchema,
+        model_settings=ModelSettings(
+        store=True,
+        reasoning=Reasoning(
+            effort="low",
+            summary="auto"
+        )
+    )
 )
 
 # async def main():

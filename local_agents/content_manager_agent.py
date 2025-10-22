@@ -1,4 +1,6 @@
-from agents import Agent
+from agents import Agent, ModelSettings
+from openai.types.shared.reasoning import Reasoning
+
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -18,4 +20,11 @@ content_manager_agent = Agent(
     instructions=content_manager_instructions,
     tools=[markdown_table_generator_agent_tool],
     model="gpt-5-mini",
+    model_settings=ModelSettings(
+        store=True,
+        reasoning=Reasoning(
+            effort="low",
+            summary="auto"
+        )
+    )
 )

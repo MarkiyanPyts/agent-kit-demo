@@ -1,8 +1,10 @@
 import asyncio
-from agents import Agent, function_tool, Runner
+from agents import Agent, ModelSettings, function_tool
+from openai.types.shared.reasoning import Reasoning
 from typing import List, Optional, Annotated
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -61,11 +63,12 @@ equipment_maintenance_analizer_agent = Agent(
         """
     ),
     tools=[getEquipmentMeintenanceLogs],
-    output_type=EquipmentMaintenanceAnalyzerOutputSchema
+    output_type=EquipmentMaintenanceAnalyzerOutputSchema,
+        model_settings=ModelSettings(
+        store=True,
+        reasoning=Reasoning(
+            effort="low",
+            summary="auto"
+        )
+    )
 )
-
-# async def main():
-#     result = await Runner.run(equipment_maintenance_analizer_agent, "Show me top 3 logs with biggest risk score?")
-#     print(result.final_output)
-
-# asyncio.run(main())
