@@ -1,9 +1,9 @@
-from agents import Agent, Runner, enable_verbose_stdout_logging, handoff
+from agents import Agent, Runner, enable_verbose_stdout_logging, handoff, ModelSettings
 from local_agents.agent_builder_energy_output_analizer import energy_project_analiser
 from local_agents.agent_builder_energy_output_analizer import WorkflowInput
 from local_agents.equipment_maintenance_analizer import equipment_maintenance_analizer_agent
 from local_agents.content_manager_agent import content_manager_agent
-from openai.types.responses import ResponseTextDeltaEvent
+from openai.types.shared.reasoning import Reasoning
 
 
 
@@ -67,7 +67,15 @@ energy_company_data_manager_agent = Agent(
     handoffs=[
         handoff(content_manager_agent)
     ],
-    model="gpt-5")
+    model="gpt-5-mini",
+    model_settings=ModelSettings(
+        store=True,
+        reasoning=Reasoning(
+            effort="low",
+            summary="auto"
+        )
+    )
+)
 
 # async def main():
 #     enable_verbose_stdout_logging()

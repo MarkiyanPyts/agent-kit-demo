@@ -32,7 +32,7 @@ markdown_table_generator_agent = Agent(
         """
     ),
     output_type=MarkdownGeneratorToolOutputSchema,
-        model_settings=ModelSettings(
+    model_settings=ModelSettings(
         store=True,
         reasoning=Reasoning(
             effort="low",
