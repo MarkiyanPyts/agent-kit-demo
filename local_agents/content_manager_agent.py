@@ -1,8 +1,9 @@
-from agents import Agent, ModelSettings
+from agents import Agent, ModelSettings, set_default_openai_client
 from openai.types.shared.reasoning import Reasoning
+from open_ai_client.index import azure_ai_foundry_model
+from open_ai_client.index import openai_client, azure_ai_foundry_model
 
-from pydantic import BaseModel, Field
-from typing import Optional
+set_default_openai_client(openai_client)
 
 
 from local_agents.markdown_table_generator_agent import markdown_table_generator_agent
@@ -19,12 +20,12 @@ content_manager_agent = Agent(
     name="Energy_Company_Content_Manager",
     instructions=content_manager_instructions,
     tools=[markdown_table_generator_agent_tool],
-    model="gpt-5-mini",
+    model=azure_ai_foundry_model,
     model_settings=ModelSettings(
         # store=True,
-        reasoning=Reasoning(
-            effort="low",
-            summary="auto"
-        )
+        # reasoning=Reasoning(
+        #     effort="low",
+        #     summary="auto"
+        # )
     )
 )

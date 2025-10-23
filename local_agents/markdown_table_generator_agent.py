@@ -1,11 +1,11 @@
-import asyncio
-from agents import Agent, Runner
-from dotenv import load_dotenv
+from agents import Agent, set_default_openai_client
 from pydantic import BaseModel, Field
 from agents import Agent, ModelSettings
 from openai.types.shared.reasoning import Reasoning
+from open_ai_client.index import openai_client, azure_ai_foundry_model
 
-load_dotenv()
+set_default_openai_client(openai_client)
+
 
 class MarkdownGeneratorInputParams(BaseModel):
     input_text: str = Field(description="Input text query")
@@ -17,7 +17,7 @@ class MarkdownGeneratorToolOutputSchema(BaseModel):
 
 markdown_table_generator_agent = Agent(
     name="markdown_table_generator_agent",
-    model="gpt-5-mini",
+    model=azure_ai_foundry_model,
     instructions=(
         """
             You are expert at creating markdown tables from data provided to you, here is example of table format expected
@@ -34,9 +34,9 @@ markdown_table_generator_agent = Agent(
     output_type=MarkdownGeneratorToolOutputSchema,
     model_settings=ModelSettings(
         store=True,
-        reasoning=Reasoning(
-            effort="low",
-            summary="auto"
-        )
+        # reasoning=Reasoning(
+        #     effort="low",
+        #     summary="auto"
+        # )
     )
 )

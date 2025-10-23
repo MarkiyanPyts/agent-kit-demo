@@ -1,12 +1,11 @@
-import asyncio
-from agents import Agent, ModelSettings, function_tool
+from agents import Agent, ModelSettings, function_tool, set_default_openai_client
 from openai.types.shared.reasoning import Reasoning
 from typing import List, Optional, Annotated
 from pydantic import BaseModel, Field
-from dotenv import load_dotenv
+from open_ai_client.index import azure_ai_foundry_model
+from open_ai_client.index import openai_client, azure_ai_foundry_model
 
-
-load_dotenv()
+set_default_openai_client(openai_client)
 
 import csv
 import os
@@ -52,7 +51,7 @@ class EquipmentMaintenanceAnalyzerOutputSchema(BaseModel):
 # Create orchestrator with conditional tools
 equipment_maintenance_analizer_agent = Agent(
     name="equipment_maintenance_analizer_agent",
-    model="gpt-5-mini",
+    model=azure_ai_foundry_model,
     instructions=(
         """
             You are an advanced AI Maintenance Analyst specializing in renewable and conventional energy infrastructure. You analyze structured maintenance logs for various equipment used in global energy projects, including wind, solar, gas, and oil systems.
@@ -64,11 +63,11 @@ equipment_maintenance_analizer_agent = Agent(
     ),
     tools=[getEquipmentMeintenanceLogs],
     output_type=EquipmentMaintenanceAnalyzerOutputSchema,
-        model_settings=ModelSettings(
+    model_settings=ModelSettings(
         store=True,
-        reasoning=Reasoning(
-            effort="low",
-            summary="auto"
-        )
+        # reasoning=Reasoning(
+        #     effort="low",
+        #     summary="auto"
+        # )
     )
 )

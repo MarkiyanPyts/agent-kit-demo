@@ -1,6 +1,9 @@
-from agents import FileSearchTool, RunContextWrapper, Agent, ModelSettings, TResponseInputItem, Runner, RunConfig, trace
+from agents import FileSearchTool, RunContextWrapper, Agent, ModelSettings, TResponseInputItem, Runner, RunConfig, trace, set_default_openai_client
 from pydantic import BaseModel
 from openai.types.shared.reasoning import Reasoning
+from open_ai_client.index import openai_client, azure_ai_foundry_model
+
+set_default_openai_client(openai_client)
 
 # Tool definitions
 file_search = FileSearchTool(
@@ -39,17 +42,17 @@ energy_project_analiser = Agent(
   instructions="""
     You are an expert on energy output readings for gas, oil and other sites
     based on input text choose the best site that fits criteria""",
-  model="gpt-5-mini",
+  model=azure_ai_foundry_model,# was "gpt-5-mini",
   tools=[
     file_search
   ],
   output_type=EnergyProjectAnaliserSchema,
   model_settings=ModelSettings(
     store=True,
-    reasoning=Reasoning(
-      effort="low",
-      summary="auto"
-    )
+    # reasoning=Reasoning(
+    #   effort="low",
+    #   summary="auto"
+    # )
   )
 )
 
