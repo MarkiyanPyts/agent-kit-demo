@@ -33,10 +33,12 @@ def energy_project_analiser_instructions(run_context: RunContextWrapper[EnergyPr
   workflow_input_as_text = run_context.context.workflow_input_as_text
   return f"""You are an expert on energy output readings for gas, oil and other sites
 
-based on {workflow_input_as_text} choose the best site that fits criteria"""
+based on input text choose the best site that fits criteria"""
 energy_project_analiser = Agent(
   name="Energy Project Analiser",
-  instructions=energy_project_analiser_instructions,
+  instructions="""
+    You are an expert on energy output readings for gas, oil and other sites
+    based on input text choose the best site that fits criteria""",
   model="gpt-5-mini",
   tools=[
     file_search
