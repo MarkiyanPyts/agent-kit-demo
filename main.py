@@ -77,7 +77,7 @@ async def message(message: MessageToAgent):
                         # Tool produced output
                         elif it.type == "tool_call_output_item":
                             call_id=it.raw_item.get("call_id", "")
-                            breakpoint()
+                            # breakpoint()
                             tool_name = getattr(it.raw_item, "name", tool_names_map[call_id])
                             print(f"-- Agent {current_agent_name} received output from {tool_name}: {it.output}; call_id: {call_id}")
                             yield f"event: tool_output\ndata: {json.dumps({'call_id': call_id, 'agent_name': current_agent_name, 'tool_name': tool_name, 'output': it.output})}\n\n"

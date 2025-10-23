@@ -67,7 +67,7 @@ energy_company_data_manager_agent = Agent(
     handoffs=[
         handoff(content_manager_agent)
     ],
-    model="gpt-5-mini",
+    model="gpt-5",
     model_settings=ModelSettings(
         store=True,
         reasoning=Reasoning(

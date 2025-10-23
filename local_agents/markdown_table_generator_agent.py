@@ -8,12 +8,12 @@ from openai.types.shared.reasoning import Reasoning
 load_dotenv()
 
 class MarkdownGeneratorInputParams(BaseModel):
-    input_query: str = Field(description="Input text query")
+    input_text: str = Field(description="Input text query")
 
 
 class MarkdownGeneratorToolOutputSchema(BaseModel):
     result: str = Field(description='Markdown table output, or explicit text telling that you can not generate table based on input content')
-    parameters: MarkdownGeneratorInputParams = Field(description='Input request params that markdown_table_generator_agent got')
+    parameters: MarkdownGeneratorInputParams = Field(description='Input request text')
 
 markdown_table_generator_agent = Agent(
     name="markdown_table_generator_agent",
@@ -40,9 +40,3 @@ markdown_table_generator_agent = Agent(
         )
     )
 )
-
-# async def main():
-#     result = await Runner.run(markdown_table_generator_agent, "Create a small markdown mable about cats")
-#     print(result.final_output)
-
-# asyncio.run(main())
