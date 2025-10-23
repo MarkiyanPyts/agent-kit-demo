@@ -22,7 +22,7 @@ async def message(message: MessageToAgent):
         print("hit endpoint:")
         with trace(workflow_name="agentic_demo"):
             result = Runner.run_streamed(energy_company_data_manager_agent, message.text)
-
+            tool_names_map = {}
             try:
                 # Optional: send an initial event to keep the connection alive
                 yield "event: hello\ndata: {}\n\n"
@@ -69,14 +69,16 @@ async def message(message: MessageToAgent):
                             # breakpoint()
                             call_id=getattr(it.raw_item, "call_id", "")
                             tool_name = getattr(it.raw_item, "name", "unknown_tool")
+                            tool_names_map[call_id] = tool_name
                             print(f"-- Agent {current_agent_name} called tool: {tool_name} with arguments: {tool_call_arguments} call_id: {call_id}")
                             yield f"event: tool_call\ndata: {json.dumps({'call_id': call_id, 'agent_name': current_agent_name, 'tool_name': tool_name, 'status': 'called', 'arguments': tool_call_arguments})}\n\n"
 
 
                         # Tool produced output
                         elif it.type == "tool_call_output_item":
-                            call_id=getattr(it.raw_item, "call_id", "")
-                            tool_name = getattr(it.raw_item, "name", "unknown_tool")
+                            call_id=it.raw_item.get("call_id", "")
+                            breakpoint()
+                            tool_name = getattr(it.raw_item, "name", tool_names_map[call_id])
                             print(f"-- Agent {current_agent_name} received output from {tool_name}: {it.output}; call_id: {call_id}")
                             yield f"event: tool_output\ndata: {json.dumps({'call_id': call_id, 'agent_name': current_agent_name, 'tool_name': tool_name, 'output': it.output})}\n\n"
 
