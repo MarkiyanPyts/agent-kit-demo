@@ -117,7 +117,8 @@ async def justllm(message: MessageToAgent):
 
     client = OpenAI()
     response = client.chat.completions.create(
-        model="gpt-5-mini",
+        model="gpt-5-nano",
+        reasoning_effort="low",
         messages=[
             {"role": "user", "content": f"translate the following text to english, this is annotation on work order for oil and gas company: {message.text}"}
         ]
