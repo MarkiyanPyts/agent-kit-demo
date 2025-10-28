@@ -7,6 +7,7 @@ from openai.types.responses import ResponseTextDeltaEvent
 from fastapi.responses import StreamingResponse
 import asyncio
 import json
+from openai import OpenAI
 
 load_dotenv()
 
@@ -111,6 +112,17 @@ async def message(message: MessageToAgent):
         },
     )
 
+@app.post("/justllm")
+async def justllm(message: MessageToAgent):
+
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model="gpt-5-mini",
+        messages=[
+            {"role": "user", "content": f"translate the following text to english, this is annotation on work order for oil and gas company: {message.text}"}
+        ]
+    )
+    return {"response": response.choices[0].message.content}
 
 @app.get("/")
 def root():
